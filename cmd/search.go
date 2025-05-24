@@ -4,7 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"bookmark/src/search"
+	"github.com/taKana671/Bookmark/src/search"
 )
 
 var searchCmd = search.NewSearchCmd()

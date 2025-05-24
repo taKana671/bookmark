@@ -1,8 +1,9 @@
 package search
 
 import (
-	"bookmark/src/utils/csv_handler"
 	"log"
+
+	"github.com/taKana671/Bookmark/src/utils/csv_handler"
 
 	"github.com/spf13/cobra"
 )

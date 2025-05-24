@@ -1,11 +1,12 @@
 package csv_handler
 
 import (
-	"bookmark/src/utils/bookmark"
 	"bytes"
 	"encoding/csv"
 	"log"
 	"os"
+
+	"github.com/taKana671/Bookmark/src/utils/bookmark"
 
 	"github.com/jszwec/csvutil"
 )

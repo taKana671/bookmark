@@ -1,61 +1,68 @@
-package add
+package open
 
 import (
-	"regexp"
-
-	"github.com/taKana671/Bookmark/src/utils/bookmark"
-	"github.com/taKana671/Bookmark/src/utils/csv_handler"
-	"github.com/taKana671/Bookmark/src/utils/web"
+	"fmt"
+	"strconv"
 
 	"github.com/spf13/cobra"
+	"github.com/taKana671/Bookmark/src/utils/csv_handler"
+	"github.com/taKana671/Bookmark/src/utils/web"
 )
 
 var (
-	url      string
-	category string
+	no  string
+	url string
 )
 
-const PATH = "bookmarks.csv"
-
-func NewAddCmd() *cobra.Command {
+func NewOpenCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add",
+		Use:   "open",
 		Short: "A brief description of your command",
-		Long:  `A longer description that spans multiple lines and likely contains examples
+		Long: `A longer description that spans multiple lines and likely contains examples
 				and usage of using your command. For example:
-				
+
 				Cobra is a CLI library for Go that empowers applications.
 				This application is a tool to generate the needed files
 				to quickly create a Cobra application.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// fmt.Println("open called")
 			err := run(cmd, args)
 			return err
 		},
 	}
+	cmd.Flags().StringVarP(&no, "no", "N", "", "bookmark number")
 	cmd.Flags().StringVarP(&url, "url", "U", "", "site URL")
-	cmd.Flags().StringVarP(&category, "category", "C", "all", "site URL")
-	cmd.MarkFlagRequired("url")
 	return cmd
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	cmd.Println(url, category)
-	cmd.Println(args)
-
-	title, err := web.GetTitle(cmd, url)
-	re := regexp.MustCompile(`\r?\n`)
-	title = re.ReplaceAllString(title, "")
+	idx, err := strconv.Atoi(no)
 
 	if err != nil {
+		cmd.Println("cannot convert no to integer")
 		return err
 	}
 
-	bm := bookmark.New(category, title, url)
+	bms, err := csv_handler.Read()
+
+	if err != nil {
+		cmd.Println(err)
+		return err
+	}
+
+	idx -= 1
+	if idx < 0 || idx >= len(bms) {
+		return fmt.Errorf("outof index: %s", no)
+	}
+
+	bm := bms[idx]
+	err = web.Open(cmd, bm.Url)
 	
-	if err := csv_handler.Write(bm.ToData()); err != nil {
+	if err != nil {
+		cmd.Println("cannot open site")
 		return err
 	}
-
+	
 	return nil
-
+	
 }

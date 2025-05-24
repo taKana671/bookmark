@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os/exec"
+	"runtime"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/cobra"
@@ -37,4 +39,32 @@ func GetTitle(cmd *cobra.Command, url string) (string, error) {
 	cmd.Println(title)
 	return title, nil
 
+}
+
+func Open(cmd *cobra.Command, url string) error {
+	var openCmd string
+	var args []string
+
+	switch runtime.GOOS {
+		case "windows":
+			openCmd = "rundll32.exe"
+			args = append(args, "url.dll,FileProtocolHandler")
+		case "linux":
+			openCmd = "xdg-open"
+		case "darwin":
+			openCmd = "open"
+		default:
+			return fmt.Errorf("not supported : %s", runtime.GOOS)
+		}
+
+	args = append(args, url)
+	err := exec.Command(openCmd, args...).Start()	
+	// err := exec.Command("rundll32.exe", "url.dll,FileProtocolHandler", bm.Url).Start()
+	
+	if err != nil {
+		cmd.Println("cannot open site")
+		return err
+	}
+
+	return nil
 }
