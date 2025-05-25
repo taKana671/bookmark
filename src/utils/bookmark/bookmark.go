@@ -53,3 +53,9 @@ func (b *Bookmark) CheckKeyword(k string) bool {
 func (b *Bookmark) ToData() []string {
 	return []string{b.Date, b.Category, b.Title, b.Url}
 }
+
+func (b *Bookmark) Fields() []string {
+	return []string{"date", "category", "title", "url"}
+	// how to get tag name, see below
+	// https://text.baldanders.info/golang/struct-tag/
+} 

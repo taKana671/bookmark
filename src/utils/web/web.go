@@ -2,7 +2,6 @@ package web
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os/exec"
 	"runtime"
@@ -16,14 +15,14 @@ func GetTitle(cmd *cobra.Command, url string) (string, error) {
 	resp, err := http.Get(url)
 
 	if err != nil {
-		log.Printf("failed to get html: %s", err)
+		cmd.PrintErrf("failed to get title: %s, %s", url, err)
 		return title, err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		log.Fatalf("failed to fetch data: %d %s", resp.StatusCode, resp.Status)
+		cmd.PrintErrf("failed to fetch data: %d %s", resp.StatusCode, resp.Status)
 		return title, fmt.Errorf("HTTP statue code: %s", resp.Status)
 
 	}
@@ -31,7 +30,7 @@ func GetTitle(cmd *cobra.Command, url string) (string, error) {
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 
 	if err != nil {
-		log.Printf("failed to load html: %s", err)
+		cmd.PrintErrf("failed to load html: %s", err)
 		return title, err
 	}
 
@@ -62,7 +61,7 @@ func Open(cmd *cobra.Command, url string) error {
 	// err := exec.Command("rundll32.exe", "url.dll,FileProtocolHandler", bm.Url).Start()
 	
 	if err != nil {
-		cmd.Println("cannot open site")
+		cmd.PrintErrln("cannot open site")
 		return err
 	}
 

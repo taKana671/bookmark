@@ -39,23 +39,31 @@ func NewAddCmd() *cobra.Command {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	cmd.Println(url, category)
-	cmd.Println(args)
-
 	title, err := web.GetTitle(cmd, url)
-	re := regexp.MustCompile(`\r?\n`)
-	title = re.ReplaceAllString(title, "")
-
+	
 	if err != nil {
 		return err
 	}
-
-	bm := bookmark.New(category, title, url)
 	
-	if err := csv_handler.Write(bm.ToData()); err != nil {
+	re := regexp.MustCompile(`\r?\n`)
+	title = re.ReplaceAllString(title, "")
+	bm := bookmark.New(category, title, url)
+	data := make([][]string, 0)
+	
+	if ! csv_handler.IsExists() {
+		data = append(data, bm.Fields())
+	} else {
+		// check duplication
+		// if th same url is found, return nil and println(already bookmarked)
+	}
+
+	data = append(data, bm.ToData())
+
+	if err := csv_handler.Write(cmd, data); err != nil {
 		return err
 	}
 
+	cmd.Printf("add data: %s, %s", category, url)
 	return nil
 
 }

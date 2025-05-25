@@ -39,14 +39,14 @@ func run(cmd *cobra.Command, args []string) error {
 	idx, err := strconv.Atoi(no)
 
 	if err != nil {
-		cmd.Println("cannot convert no to integer")
+		cmd.PrintErrf("cannot convert to integer: %s", no)
 		return err
 	}
 
-	bms, err := csv_handler.Read()
+	bms, err := csv_handler.Read(cmd)
 
 	if err != nil {
-		cmd.Println(err)
+		cmd.PrintErrln(err)
 		return err
 	}
 
@@ -59,7 +59,7 @@ func run(cmd *cobra.Command, args []string) error {
 	err = web.Open(cmd, bm.Url)
 	
 	if err != nil {
-		cmd.Println("cannot open site")
+		cmd.PrintErrf("cannot open site: %s", bm.Url)
 		return err
 	}
 	

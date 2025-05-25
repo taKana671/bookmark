@@ -1,8 +1,6 @@
 package search
 
 import (
-	"log"
-
 	"github.com/taKana671/Bookmark/src/utils/csv_handler"
 
 	"github.com/spf13/cobra"
@@ -34,10 +32,9 @@ func NewSearchCmd() *cobra.Command {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	bms, err := csv_handler.Read()
+	bms, err := csv_handler.Read(cmd)
 
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
