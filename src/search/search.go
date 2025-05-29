@@ -32,16 +32,29 @@ func NewSearchCmd() *cobra.Command {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	bms, err := csv_handler.Read(cmd)
+	bs, err := csv_handler.Read()
 
 	if err != nil {
 		return err
 	}
 
-	for i, b := range bms {
+	if len(bs.List) == 0 {
+		cmd.Println("the number of bookmarks: 0")
+		return nil
+	}
+
+	cnt := 0
+
+	for _, b := range bs.List {
 		if b.CheckCategory(category) && b.CheckKeyword(keyword) {
-			cmd.Println(i+1, b.ToData())
+			cnt++
+			cmd.Println(cnt, b.ToData())
 		}
 	}
+
+	if cnt == 0 {
+		cmd.Printf("bookmarks not found; category: %s; keyword: %s", category, keyword)
+	}
+
 	return nil
 }

@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/csv"
 	"os"
+	"slices"
 
-	"github.com/spf13/cobra"
 	"github.com/taKana671/Bookmark/src/utils/bookmark"
 
 	"github.com/jszwec/csvutil"
@@ -22,11 +22,10 @@ func IsExists() bool {
 	return false
 }
 
-func Write(cmd *cobra.Command, data [][]string) error {
+func Write(data [][]string) error {
 	f, err := os.OpenFile(PATH, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
 	if err != nil {
-		cmd.PrintErrf("failed to open %s: %s", PATH, err)
 		return err
 	}
 
@@ -35,26 +34,18 @@ func Write(cmd *cobra.Command, data [][]string) error {
 	w := csv.NewWriter(f)
 
 	if err := w.WriteAll(data); err != nil {
-		cmd.PrintErrf("failed to write %s: %s", PATH, err)
 		return err
 	}
-	// }	if err := w.Write(data); err != nil {
-	// 	cmd.PrintErrf("failed to write %s: %s", PATH, err)
-	// 	return err
-	// }
-
-	w.Flush()
+	
+	// w.Flush()
 	return nil
 }
 
-func Read(cmd *cobra.Command) ([]*bookmark.Bookmark, error) {
-	var bms []*bookmark.Bookmark
-
+func Read() (*bookmark.Bookmarks, error) {
 	f, err := os.Open(PATH)
 	
 	if err != nil {
-		cmd.PrintErrln(err)
-		return bms, err
+		return nil, err
 	}
 
 	defer f.Close()
@@ -63,21 +54,63 @@ func Read(cmd *cobra.Command) ([]*bookmark.Bookmark, error) {
 	rows, err := r.ReadAll()
 
 	if err != nil {
-		cmd.PrintErrln(err)
-		return bms, err
+		return nil, err
 	}
 
 	b := &bytes.Buffer{}
+	
 	if err := csv.NewWriter(b).WriteAll(rows); err != nil {
-		cmd.PrintErrln(err)
-		return bms, err
+		return nil, err
+		
+	}
+	
+	var list []*bookmark.Bookmark
+
+	if err := csvutil.Unmarshal(b.Bytes(), &list); err != nil {
+		return nil, err
 	}
 
-	if err := csvutil.Unmarshal(b.Bytes(), &bms); err != nil {
-		cmd.PrintErrln(err)
-		return bms, err
-	}
-
-	return bms, nil
-
+	bs := &bookmark.Bookmarks{List: list}
+	return bs, nil
 }
+
+func FindDuplication(url string) (*bookmark.Bookmark, error) {
+	bs, err := Read()
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, b := range bs.List {
+		if b.Url == url {
+			return b, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func Delete(bs *bookmark.Bookmarks, idx int) error {
+	bs.List = slices.Delete(bs.List, idx, idx + 1)
+	var data [][]string
+
+	data = append(data, bookmark.Tags())
+	data = append(data, bs.ToData()...)
+
+	f, err := os.OpenFile(PATH, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	w := csv.NewWriter(f)
+
+	if err := w.WriteAll(data); err != nil {
+		return err
+	}
+
+	return nil
+}
+

@@ -39,7 +39,24 @@ func NewAddCmd() *cobra.Command {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-	title, err := web.GetTitle(cmd, url)
+	data := make([][]string, 0)
+	
+	if !csv_handler.IsExists() {
+		data = append(data, bookmark.Tags())
+	} else {
+		b, err := csv_handler.FindDuplication(url)
+
+		if err != nil {
+			return err
+		}
+
+		if b != nil {
+			cmd.Printf("already bookmarked on %s: %s", b.Date, url)
+			return nil
+		}
+	}
+
+	title, err := web.GetTitle(url)
 	
 	if err != nil {
 		return err
@@ -47,23 +64,14 @@ func run(cmd *cobra.Command, args []string) error {
 	
 	re := regexp.MustCompile(`\r?\n`)
 	title = re.ReplaceAllString(title, "")
-	bm := bookmark.New(category, title, url)
-	data := make([][]string, 0)
-	
-	if ! csv_handler.IsExists() {
-		data = append(data, bm.Fields())
-	} else {
-		// check duplication
-		// if th same url is found, return nil and println(already bookmarked)
-	}
+	b := bookmark.New(category, title, url)
+	data = append(data, b.ToData())
 
-	data = append(data, bm.ToData())
-
-	if err := csv_handler.Write(cmd, data); err != nil {
+	if err := csv_handler.Write(data); err != nil {
 		return err
 	}
 
-	cmd.Printf("add data: %s, %s", category, url)
+	cmd.Printf("bookmarked on %s: %s, %s, %s", b.Date, category, title, url)
 	return nil
 
 }
