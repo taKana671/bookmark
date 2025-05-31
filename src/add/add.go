@@ -51,7 +51,7 @@ func run(cmd *cobra.Command, args []string) error {
 		}
 
 		if b != nil {
-			cmd.Printf("already bookmarked on %s: %s", b.Date, url)
+			cmd.Printf("already bookmarked on %s: %s", b.Datetime, url)
 			return nil
 		}
 	}
@@ -71,7 +71,7 @@ func run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cmd.Printf("bookmarked on %s: %s, %s, %s", b.Date, category, title, url)
+	cmd.Printf("bookmarked on %s: %s, %s, %s", b.Datetime, category, title, url)
 	return nil
 
 }
