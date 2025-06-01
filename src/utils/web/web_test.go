@@ -67,14 +67,14 @@ func TestNewOpenCommand(t *testing.T) {
 		{"linux", "https://test", "xdg-open", []string{"https://test"}},
 		{"darwin", "https://test", "open", []string{"https://test"}},
 		{"aaa", "https://test", "", nil},
-
 	}
 
 	for _, tt := range tests {
-		openCmd, err := newOpenCommand(tt.nm, tt.url)
+		openCmd, err := NewOpenCommand(tt.nm, tt.url)
 
 		if err == nil {
-			assert.Equal(t, tt.expectCmd, openCmd.cmd)
+			assert.Equal(t, tt.expectCmd, openCmd.Cmd)
+			assert.Equal(t, tt.expectArgs, openCmd.Args)
 		} else {
 			if assert.Error(t, err) {
 				assert.Equal(t, err, fmt.Errorf("not supported : %s", tt.nm))
@@ -82,21 +82,3 @@ func TestNewOpenCommand(t *testing.T) {
 		}
 	}
 }
-
-
-// var testCase string
-
-// func fakeExecCommand(command string, args ...string) *exec.Cmd {
-// 	cs := []string{"-test.run=TestHelperProcess", "--", command}
-// 	cs = append(cs, args...)
-// 	cmd := exec.Command(os.Args[0], cs...)
-// 	tc := "TEST_CASE=" + testCase
-
-// 	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1", tc}
-//   	return cmd
-// }
-
-// func TestOpen(t *testing.T) {
-// 	execCommand = fakeExecCommand
-// 	defer func() {execCommand}
-// }

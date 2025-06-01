@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"os/exec"
-	"runtime"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/spf13/cobra"
 )
 
 func GetTitle(url string) (string, error) {
@@ -35,48 +33,37 @@ func GetTitle(url string) (string, error) {
 
 }
 
-type openCommand struct {
-	cmd     string
-	args    []string
+type OpenCommand struct {
+	Cmd     string
+	Args    []string
 }
 
-
-func newOpenCommand(nm string, url string) (*openCommand, error) {
-	openCmd := openCommand{}
+func NewOpenCommand(nm string, url string) (*OpenCommand, error) {
+	openCmd := OpenCommand{}
 
 	switch nm {
 		case "windows":
-			openCmd.cmd = "rundll32.exe"
-			openCmd.args = append(openCmd.args, "url.dll,FileProtocolHandler")
+			openCmd.Cmd = "rundll32.exe"
+			openCmd.Args = append(openCmd.Args, "url.dll,FileProtocolHandler")
 
 		case "linux":
-			openCmd.cmd = "xdg-open"
+			openCmd.Cmd = "xdg-open"
 
 		case "darwin":
-			openCmd.cmd = "open"
+			openCmd.Cmd = "open"
 		
 		default:
 			return &openCmd, fmt.Errorf("not supported : %s", nm)
 		}
 
-	openCmd.args = append(openCmd.args, url)
+	openCmd.Args = append(openCmd.Args, url)
 	return &openCmd, nil
 }
 
 
-func Open(cmd *cobra.Command, url string) error {
-	openCmd, err := newOpenCommand(runtime.GOOS, url)
-
-	if err != nil {
+func (o *OpenCommand) Execute() error {
+	if err := exec.Command(o.Cmd, o.Args...).Start(); err != nil {
 		return err
 	}
-
-	err = exec.Command(openCmd.cmd, openCmd.args...).Start()	
-	// err := exec.Command("rundll32.exe", "url.dll,FileProtocolHandler", bm.Url).Start()
-	
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

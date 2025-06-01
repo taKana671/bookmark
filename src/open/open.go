@@ -1,6 +1,7 @@
 package open
 
 import (
+	"runtime"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -50,7 +51,13 @@ func run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := web.Open(cmd, b.Url); err != nil {
+	openCmd, err := web.NewOpenCommand(runtime.GOOS, b.Url)
+
+	if err != nil {
+		return err
+	}
+
+	if err := openCmd.Execute(); err != nil {
 		return err
 	}
 	
