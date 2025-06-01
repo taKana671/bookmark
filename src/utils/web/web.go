@@ -5,55 +5,73 @@ import (
 	"net/http"
 	"os/exec"
 	"runtime"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/cobra"
 )
 
 func GetTitle(url string) (string, error) {
-	var title string
-	resp, err := http.Get(url)
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	resp, err := client.Get(url)
 
 	if err != nil {
-		return title, err
+		return "", err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return title, fmt.Errorf("HTTP statue code: %s", resp.Status)
+		return "", fmt.Errorf("HTTP statue code: %s", resp.Status)
 
 	}
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-
-	if err != nil {
-		return title, err
-	}
-
-	title = doc.Find("title").Text()
+	doc, _ := goquery.NewDocumentFromReader(resp.Body)
+	title := doc.Find("title").Text()
 	return title, nil
 
 }
 
-func Open(cmd *cobra.Command, url string) error {
-	var openCmd string
-	var args []string
+type openCommand struct {
+	cmd     string
+	args    []string
+}
 
-	switch runtime.GOOS {
+
+func newOpenCommand(nm string, url string) (*openCommand, error) {
+	openCmd := openCommand{}
+
+	switch nm {
 		case "windows":
-			openCmd = "rundll32.exe"
-			args = append(args, "url.dll,FileProtocolHandler")
+			openCmd.cmd = "rundll32.exe"
+			openCmd.args = append(openCmd.args, "url.dll,FileProtocolHandler")
+
 		case "linux":
-			openCmd = "xdg-open"
+			openCmd.cmd = "xdg-open"
+
 		case "darwin":
-			openCmd = "open"
+			openCmd.cmd = "open"
+		
 		default:
-			return fmt.Errorf("not supported : %s", runtime.GOOS)
+			return &openCmd, fmt.Errorf("not supported : %s", nm)
 		}
 
-	args = append(args, url)
-	err := exec.Command(openCmd, args...).Start()	
+	openCmd.args = append(openCmd.args, url)
+	return &openCmd, nil
+}
+
+
+func Open(cmd *cobra.Command, url string) error {
+	openCmd, err := newOpenCommand(runtime.GOOS, url)
+
+	if err != nil {
+		return err
+	}
+
+	err = exec.Command(openCmd.cmd, openCmd.args...).Start()	
 	// err := exec.Command("rundll32.exe", "url.dll,FileProtocolHandler", bm.Url).Start()
 	
 	if err != nil {

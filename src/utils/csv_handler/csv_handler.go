@@ -11,11 +11,11 @@ import (
 	"github.com/jszwec/csvutil"
 )
 
-const PATH = "bookmarks.csv"
+var Path string = "bookmarks.csv"
 
 
 func IsExists() bool {
-	if _, err := os.Stat(PATH); err == nil {
+	if _, err := os.Stat(Path); err == nil {
 		return true
 	}
 
@@ -23,7 +23,7 @@ func IsExists() bool {
 }
 
 func Write(data [][]string) error {
-	f, err := os.OpenFile(PATH, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(Path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func Write(data [][]string) error {
 }
 
 func Read() (*bookmark.Bookmarks, error) {
-	f, err := os.Open(PATH)
+	f, err := os.Open(Path)
 	
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func Delete(bs *bookmark.Bookmarks, idx int) error {
 	data = append(data, bookmark.Tags())
 	data = append(data, bs.ToData()...)
 
-	f, err := os.OpenFile(PATH, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	f, err := os.OpenFile(Path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 
 	if err != nil {
 		return err
