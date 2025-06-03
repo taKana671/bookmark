@@ -166,7 +166,6 @@ func createTestBookmarks() *Bookmarks {
 
 func TestNew(t *testing.T) {
 	t.Run("time mock test using monkey", func(t *testing.T) {
-		// ctx := context.Background()
 		mockTime := time.Date(2025, 6, 1, 1, 0, 0, 0, time.Local)
 		patch := monkey.Patch(time.Now, func() time.Time {return mockTime})
 

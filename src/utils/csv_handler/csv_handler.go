@@ -3,6 +3,7 @@ package csv_handler
 import (
 	"bytes"
 	"encoding/csv"
+	"fmt"
 	"os"
 	"slices"
 
@@ -60,6 +61,7 @@ func Read() (*bookmark.Bookmarks, error) {
 	b := &bytes.Buffer{}
 	
 	if err := csv.NewWriter(b).WriteAll(rows); err != nil {
+		fmt.Println("write_all", err)
 		return nil, err
 		
 	}
@@ -91,20 +93,18 @@ func FindDuplication(url string) (*bookmark.Bookmark, error) {
 }
 
 func Delete(bs *bookmark.Bookmarks, idx int) error {
-	bs.List = slices.Delete(bs.List, idx, idx + 1)
-	var data [][]string
-
-	data = append(data, bookmark.Tags())
-	data = append(data, bs.ToData()...)
-
 	f, err := os.OpenFile(Path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-
+	
 	if err != nil {
 		return err
 	}
-
+	
 	defer f.Close()
-
+	
+	bs.List = slices.Delete(bs.List, idx, idx + 1)
+	var data [][]string
+	data = append(data, bookmark.Tags())
+	data = append(data, bs.ToData()...)
 	w := csv.NewWriter(f)
 
 	if err := w.WriteAll(data); err != nil {
