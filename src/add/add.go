@@ -15,7 +15,7 @@ var (
 	category string
 )
 
-const PATH = "bookmarks.csv"
+// const PATH = "bookmarks.csv"
 
 func NewAddCmd() *cobra.Command {
 	cmd := &cobra.Command{

@@ -39,7 +39,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(bs.List) == 0 {
-		cmd.Println("the number of bookmarks: 0")
+		cmd.Printf("the number of bookmarks: %d", len(bs.List))
 		return nil
 	}
 
