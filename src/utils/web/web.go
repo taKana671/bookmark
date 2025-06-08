@@ -4,61 +4,66 @@ import (
 	"fmt"
 	"net/http"
 	"os/exec"
-	"runtime"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/spf13/cobra"
 )
 
 func GetTitle(url string) (string, error) {
-	var title string
-	resp, err := http.Get(url)
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+
+	resp, err := client.Get(url)
 
 	if err != nil {
-		return title, err
+		return "", err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return title, fmt.Errorf("HTTP statue code: %s", resp.Status)
+		return "", fmt.Errorf("HTTP statue code: %s", resp.Status)
 
 	}
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-
-	if err != nil {
-		return title, err
-	}
-
-	title = doc.Find("title").Text()
+	doc, _ := goquery.NewDocumentFromReader(resp.Body)
+	title := doc.Find("title").Text()
 	return title, nil
 
 }
 
-func Open(cmd *cobra.Command, url string) error {
-	var openCmd string
-	var args []string
+type OpenCommand struct {
+	Cmd     string
+	Args    []string
+}
 
-	switch runtime.GOOS {
+func NewOpenCommand(nm string, url string) (*OpenCommand, error) {
+	openCmd := OpenCommand{}
+
+	switch nm {
 		case "windows":
-			openCmd = "rundll32.exe"
-			args = append(args, "url.dll,FileProtocolHandler")
+			openCmd.Cmd = "rundll32.exe"
+			openCmd.Args = append(openCmd.Args, "url.dll,FileProtocolHandler")
+
 		case "linux":
-			openCmd = "xdg-open"
+			openCmd.Cmd = "xdg-open"
+
 		case "darwin":
-			openCmd = "open"
+			openCmd.Cmd = "open"
+		
 		default:
-			return fmt.Errorf("not supported : %s", runtime.GOOS)
+			return &openCmd, fmt.Errorf("not supported : %s", nm)
 		}
 
-	args = append(args, url)
-	err := exec.Command(openCmd, args...).Start()	
-	// err := exec.Command("rundll32.exe", "url.dll,FileProtocolHandler", bm.Url).Start()
-	
-	if err != nil {
+	openCmd.Args = append(openCmd.Args, url)
+	return &openCmd, nil
+}
+
+
+func (o *OpenCommand) Execute() error {
+	if err := exec.Command(o.Cmd, o.Args...).Start(); err != nil {
 		return err
 	}
-
 	return nil
 }
