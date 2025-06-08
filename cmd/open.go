@@ -4,7 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/taKana671/Bookmark/src/open"
+	"github.com/taKana671/bookmark/src/open"
 )
 
 var openCmd = open.NewOpenCmd()

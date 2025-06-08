@@ -3,9 +3,9 @@ package add
 import (
 	"regexp"
 
-	"github.com/taKana671/Bookmark/src/utils/bookmark"
-	"github.com/taKana671/Bookmark/src/utils/csv_handler"
-	"github.com/taKana671/Bookmark/src/utils/web"
+	"github.com/taKana671/bookmark/src/utils/bookmark"
+	"github.com/taKana671/bookmark/src/utils/csv_handler"
+	"github.com/taKana671/bookmark/src/utils/web"
 
 	"github.com/spf13/cobra"
 )
@@ -15,25 +15,20 @@ var (
 	category string
 )
 
-const PATH = "bookmarks.csv"
-
 func NewAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add",
-		Short: "A brief description of your command",
-		Long:  `A longer description that spans multiple lines and likely contains examples
-				and usage of using your command. For example:
-				
-				Cobra is a CLI library for Go that empowers applications.
-				This application is a tool to generate the needed files
-				to quickly create a Cobra application.`,
+		Short: "Bookmark a website.",
+		Long:  `Bookmark a site by saving its information in a csv file, which contains
+		        the datetime when the site was bookmarked, the category, the site title,
+				and the URL.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := run(cmd, args)
 			return err
 		},
 	}
 	cmd.Flags().StringVarP(&url, "url", "U", "", "site URL")
-	cmd.Flags().StringVarP(&category, "category", "C", "all", "site URL")
+	cmd.Flags().StringVarP(&category, "category", "C", "all", "site category")
 	cmd.MarkFlagRequired("url")
 	return cmd
 }
@@ -51,7 +46,7 @@ func run(cmd *cobra.Command, args []string) error {
 		}
 
 		if b != nil {
-			cmd.Printf("already bookmarked on %s: %s", b.Date, url)
+			cmd.Printf("already bookmarked on %s: %s", b.Datetime, url)
 			return nil
 		}
 	}
@@ -71,7 +66,7 @@ func run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	cmd.Printf("bookmarked on %s: %s, %s, %s", b.Date, category, title, url)
+	cmd.Printf("bookmarked on %s: %s, %s, %s", b.Datetime, category, title, url)
 	return nil
 
 }

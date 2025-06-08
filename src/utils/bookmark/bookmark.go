@@ -9,9 +9,12 @@ import (
 
 const layout = "2006-01-02 15:04:05"
 
+type DtKey string
+const DatetimeKey DtKey = "now"
+
 
 type Bookmark struct {
-	Date     string `csv:"date"`
+	Datetime     string `csv:"datetime"`
 	Category string `csv:"category"`
 	Title    string `csv:"title"`
 	Url      string `csv:"url"`
@@ -21,11 +24,12 @@ type Bookmarks struct {
 	List []*Bookmark
 }
 
+
 func New(category, title, url string) *Bookmark {
-	t := time.Now()
+	dt := time.Now()
 
 	bm := &Bookmark{
-		Date: t.Format(layout),
+		Datetime: dt.Format(layout),
 		Category: category,
 		Title: title,
 		Url: url,
@@ -68,7 +72,7 @@ func (b *Bookmark) CheckKeyword(k string) bool {
 }
 
 func (b *Bookmark) ToData() []string {
-	return []string{b.Date, b.Category, b.Title, b.Url}
+	return []string{b.Datetime, b.Category, b.Title, b.Url}
 }
 
 func (bs *Bookmarks) ToData() [][]string {
