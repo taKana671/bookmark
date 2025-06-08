@@ -31,7 +31,7 @@ If no category is specified, the category is saved as `all`.
 
 ```
 bookmark add -C <category> -U <url>
-// bookmark add --category <category> --url <url>
+// or bookmark add --category <category> --url <url>
 // if not compile
 // go run main.go add -C <category> -U <url>
 
@@ -46,7 +46,7 @@ If a keyword is specified, it will determine if the keyword is included in the s
 
 ```
 bookmark search -C <category> -K <keyword>
-// bookmark search --category <category> --keyword <keyword>
+// or bookmark search --category <category> --keyword <keyword>
 
 >bookmark search
 1 [2025-06-08 12:08:05 golang The Go Programming Language https://go.dev/]
@@ -71,7 +71,7 @@ Open the website by specifying the `bookmark seach` result number.
 
 ```
 bookmark open -N <number>
-// bookmark open --no <number>
+// or bookmark open --no <number>
 
 >bookmark search
 1 [2025-06-08 12:08:05 golang The Go Programming Language https://go.dev/]
@@ -87,7 +87,7 @@ Delete the bookmark by specifying the `bookmark seach` result number.
 
 ```
 bookmark delete -N <number>
-// bookmark delete --no <number>
+// or bookmark delete --no <number>
 
 >bookmark search
 1 [2025-06-08 12:08:05 golang The Go Programming Language https://go.dev/]
@@ -95,7 +95,8 @@ bookmark delete -N <number>
 
 >bookmark delete -N 1
 deleted a bookmark: The Go Programming Language, https://go.dev/
-C:\Users\Kanae\Desktop>bookmark search
+
+>bookmark search
 1 [2025-06-08 12:15:34 python 3.13.4 Documentation https://docs.python.org/3/]
 ```
 
