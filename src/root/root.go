@@ -5,13 +5,12 @@ import "github.com/spf13/cobra"
 func NewRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "bookmark",
-		Short: "A brief description of your application",
-		Long:  `A longer description that spans multiple lines and likely contains
-				examples and usage of using your application. For example:
-
-				Cobra is a CLI library for Go that empowers applications.
-				This application is a tool to generate the needed files
-				to quickly create a Cobra application.`,
+		Short: "CLI to bookmark a website.",
+		Long:  `Bookmark websites, delete bookmarks, search for bookmarks,
+		        and access bookmarked sites.
+				Information on bookmarked websites (datetime of bookmarking, category,
+				site title, and site URL) is saved in a CSV file that is output
+				on the same level as this CLI.`,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Help()

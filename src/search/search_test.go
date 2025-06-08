@@ -9,8 +9,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
-	"github.com/taKana671/Bookmark/src/root"
-	"github.com/taKana671/Bookmark/src/utils/csv_handler"
+	"github.com/taKana671/bookmark/src/root"
+	"github.com/taKana671/bookmark/src/utils/csv_handler"
 )
 
 func TestSearch(t *testing.T) {
@@ -24,11 +24,7 @@ func TestSearch(t *testing.T) {
 	t.Run("search with no options", func(t *testing.T) {
 		defer rewritePath("./test_bookmarks.csv")()
 		
-		f, _ := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
-		w := csv.NewWriter(f)
-		w.WriteAll(data)
-		f.Close()
-
+		writeTestData(data, t)
 		args := []string{"search"}
 		cmd := makeCmd(args)
 		
@@ -48,14 +44,11 @@ func TestSearch(t *testing.T) {
 
 	t.Run("search with options", func(t *testing.T) {
 		defer rewritePath("./test_bookmarks.csv")()
-		
-		f, _ := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
-		w := csv.NewWriter(f)
-		w.WriteAll(data)
-		f.Close()
+
+		writeTestData(data, t)
 
 		tests := []struct {
-			args []string
+			args   []string
 			expect string
 		}{
 			{[]string{"search", "--category", "python"}, "1 [2025-06-01 16:59:55 python Effective python https://test2]\n"},
@@ -86,11 +79,7 @@ func TestSearch(t *testing.T) {
 	t.Run("no match", func(t *testing.T) {
 		defer rewritePath("./test_bookmarks.csv")()
 
-		f, _ := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
-		w := csv.NewWriter(f)
-		w.WriteAll(data)
-		f.Close()
-
+		writeTestData(data, t)
 		args := []string{"search", "--category", "SQL"}
 		cmd := makeCmd(args)
 		
@@ -115,11 +104,7 @@ func TestSearch(t *testing.T) {
 			{"datetime", "category", "title", "url"},
 		}
 
-		f, _ := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
-		w := csv.NewWriter(f)
-		w.WriteAll(title)
-		f.Close()
-
+		writeTestData(title, t)
 		args := []string{"search", "--category", "SQL"}
 		cmd := makeCmd(args)
 		
@@ -137,7 +122,7 @@ func TestSearch(t *testing.T) {
 		assert.Equal(t, expect, string(out))
 	})
 
-	t.Run("file open error", func(t *testing.T) {
+	t.Run("failed open file", func(t *testing.T) {
 		defer rewritePath("./test_bookmarks.csv")()
 
 		args := []string{"search", "--category", "SQL"}
@@ -166,4 +151,17 @@ func makeCmd(args []string) *cobra.Command {
 	searchCmd := NewSearchCmd()
 	cmd.AddCommand(searchCmd)
 	return cmd
+}
+
+func writeTestData(data [][]string, t *testing.T) {
+	f, err := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
+	
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	defer f.Close()
+
+	w := csv.NewWriter(f)
+	w.WriteAll(data)
 }

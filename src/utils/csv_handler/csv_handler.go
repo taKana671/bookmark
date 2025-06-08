@@ -7,7 +7,7 @@ import (
 	"os"
 	"slices"
 
-	"github.com/taKana671/Bookmark/src/utils/bookmark"
+	"github.com/taKana671/bookmark/src/utils/bookmark"
 
 	"github.com/jszwec/csvutil"
 )

@@ -6,7 +6,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/taKana671/Bookmark/src/root"
+	"github.com/taKana671/bookmark/src/root"
 )
 
 // // rootCmd represents the base command when called without any subcommands

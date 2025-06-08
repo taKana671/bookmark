@@ -1,4 +1,4 @@
-module github.com/taKana671/Bookmark
+module github.com/taKana671/bookmark
 
 go 1.23.4
 

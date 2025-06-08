@@ -10,8 +10,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
-	"github.com/taKana671/Bookmark/src/root"
-	"github.com/taKana671/Bookmark/src/utils/csv_handler"
+	"github.com/taKana671/bookmark/src/root"
+	"github.com/taKana671/bookmark/src/utils/csv_handler"
 )
 
 func TestOpen(t *testing.T) {
@@ -25,11 +25,7 @@ func TestOpen(t *testing.T) {
 	t.Run("successfully open site", func(t *testing.T) {
 		defer rewritePath("./test_bookmarks.csv")()
 
-		f, _ := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
-		w := csv.NewWriter(f)
-		w.WriteAll(data)
-		f.Close()
-
+		writeTestData(data, t)
 		expect := "open: https://www.google.co.jp"
 
 		tests := []struct {
@@ -55,14 +51,10 @@ func TestOpen(t *testing.T) {
 		}
 	})
 
-	t.Run("index error", func(t *testing.T) {
+	t.Run("index out of range", func(t *testing.T) {
 		defer rewritePath("./test_bookmarks.csv")()
 
-		f, _ := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
-		w := csv.NewWriter(f)
-		w.WriteAll(data)
-		f.Close()
-
+		writeTestData(data, t)
 		args := []string{"open", "-N", "5"}
 		cmd := makeCmd(args)
 		b := bytes.NewBufferString("")
@@ -73,14 +65,10 @@ func TestOpen(t *testing.T) {
 		assert.Equal(t, expectErr, err)
 	})
 
-	t.Run("convert string error", func(t *testing.T) {
+	t.Run("failed convert to int", func(t *testing.T) {
 		defer rewritePath("./test_bookmarks.csv")()
 
-		f, _ := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
-		w := csv.NewWriter(f)
-		w.WriteAll(data)
-		f.Close()
-
+		writeTestData(data, t)
 		args := []string{"open", "-N", "a"}
 		cmd := makeCmd(args)
 		b := bytes.NewBufferString("")
@@ -89,7 +77,7 @@ func TestOpen(t *testing.T) {
 		assert.ErrorContains(t, err, `parsing "a": invalid syntax`)
 	})
 
-	t.Run("file open error", func(t *testing.T) {
+	t.Run("failed open file", func(t *testing.T) {
 		defer rewritePath("./test_bookmarks.csv")()
 
 		args := []string{"open", "-N", "1"}
@@ -119,4 +107,17 @@ func makeCmd(args []string) *cobra.Command {
 	searchCmd := NewOpenCmd()
 	cmd.AddCommand(searchCmd)
 	return cmd
+}
+
+func writeTestData(data [][]string, t *testing.T) {
+	f, err := os.OpenFile(csv_handler.Path, os.O_RDWR|os.O_CREATE, 0666)
+	
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	defer f.Close()
+
+	w := csv.NewWriter(f)
+	w.WriteAll(data)
 }
